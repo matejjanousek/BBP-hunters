@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../styles/style.css">
+    <link rel="stylesheet" href="../styles/sidestyle.css">
+    <title>DNS Recon | Bug Bounty Academy</title>
+</head>
+<body>
+    <div class="overlay"></div>
+    
+    <header class="main-header">
+        <a href="web_basics.html" class="header-link">
+            <h1>[ DNS ]</h1>
+            <p>Kliknutím se vrátíš zpět.</p>
+        </a>
+    </header>
+
+    <main class="detail-container">
+        <section class="content-section">
+            <h2>Hierarchická struktura DNS</h2>
+            <p>DNS není jedna centrální databáze, ale stromová struktura uzlů. Jako bug hunter se zajímáš hlavně o <strong>Authoritative Name Servers</strong>, které jsou konečným zdrojem pravdy pro daný cíl.</p>
+            
+            <div class="knowledge-box">
+                <h3>Vrstvy hierarchie:</h3>
+                <ul>
+                    <li><strong>Root Zone (.):</strong> 13 logických adres delegujících dotazy na TLD.</li>
+                    <li><strong>TLD (Top-Level Domain):</strong> Spravují přípony jako .com, .net nebo národní .cz.</li>
+                    <li><strong>Authoritative Servers:</strong> Drží konkrétní zónové soubory domény (např. ns.seznam.cz).</li>
+                </ul>
+            </div>
+        </section>
+
+        
+
+        <section class="content-section">
+            <h2>Typy záznamů (Resource Records)</h2>
+            <p>V zónovém souboru najdeš data, která ti odhalí infrastrukturu cíle. Každý záznam má svůj formát a účel.</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Typ</th>
+                        <th>Funkce</th>
+                        <th>Význam pro Bounty</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>A / AAAA</td><td>Mapování na IPv4 / IPv6</td><td>Získání přímé IP adresy serveru.</td></tr>
+                    <tr><td>CNAME</td><td>Alias domény</td><td>Může odhalit služby třetích stran (SaaS).</td></tr>
+                    <tr><td>MX</td><td>Mail Exchange</td><td>Identifikace poštovních serverů.</td></tr>
+                    <tr><td>TXT</td><td>Textové záznamy</td><td>Často obsahuje SPF, DKIM nebo verifikační klíče.</td></tr>
+                    <tr><td>PTR</td><td>Reverzní záznam</td><td>Překlad IP -> FQDN (užitečné při skenování rozsahů).</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="content-section">
+            <h2>TTL a Caching</h2>
+            <p><strong>TTL (Time To Live)</strong> definuje čas v sekundách, po který smí být záznam v cache. Nízké TTL (např. 60s) značí časté změny nebo failover systémy, vysoké TTL (1 den) znamená stabilní konfiguraci.</p>
+        </section>
+
+        <section class="content-section">
+            <h2>Protokol a porty</h2>
+            <div class="grid">
+                <div class="status-box">
+                    <span class="code">UDP 53</span>
+                    <p>Standardní dotazy. Rychlé, nízký overhead, limit 512 bajtů.</p>
+                </div>
+                <div class="status-box">
+                    <span class="code">TCP 53</span>
+                    <p>Zónové přenosy (AXFR) a velké odpovědi přesahující limit UDP.</p>
+                </div>
+            </div>
+        </section>
+        <img src="../Images/dns-Img.jpg" alt="Dns structure" class="img">
+        
+    </main>
+
+    <footer>
+        <p>TERMINAL_LOG: DNS_DATA_FETCHED // SOURCE: BBP_GUIDE [cite: 1]</p>
+    </footer>
+</body>
+</html>

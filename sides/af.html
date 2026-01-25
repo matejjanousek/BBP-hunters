@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../styles/style.css">
+    <link rel="stylesheet" href="../styles/sidestyle.css">
+    <title>Broken Access Control | OWASP #1 Analysis</title>
+</head>
+<body>
+    <div class="overlay"></div>
+    
+    <header class="main-header">
+        <a href="web_security.html" class="header-link">
+            <h1>[ AUTH_FAILURES ]</h1>
+            <p>Kliknutím se vrátíš zpět.</p>
+        </a>
+    </header>
+
+    <main class="detail-container">
+        <section class="content-section">
+            <h2>Když selže ověření identity</h2>
+            <p><strong>Identification and Authentication Failures</strong> se zaměřují na slabiny v potvrzování identity uživatele a následnou správu jeho sezení (Session Management). Pokud tyto mechanismy nefungují, útočník nepotřebuje hacknout databázi – prostě se do systému "přihlásí" jako oběť (Account Takeover).</p>
+            
+            <div class="knowledge-box">
+                <h3>Kritické slabiny k testování:</h3>
+                <ul>
+                    <li><strong>Permissive Authentication:</strong> Povolení slabých hesel nebo absence ochrany proti hrubé síle (Brute-force).</li>
+                    <li><strong>Credential Stuffing:</strong> Zneužití automatizovaných skriptů k testování uniklých přihlašovacích údajů z jiných služeb.</li>
+                    <li><strong>Broken Session Management:</strong> Předvídatelná Session ID, chybějící invalidace tokenů po odhlášení nebo úniky Session ID v URL.</li>
+                </ul>
+            </div>
+        </section>
+
+        
+
+        <section class="content-section">
+            <h2>Pokročilé útočné scénáře</h2>
+            <p>V BBP se soustředíme na techniky, které obcházejí i moderní zabezpečení:</p>
+            
+            <div class="grid">
+                <div class="status-box">
+                    <span class="code">Session Hijacking & Fixation</span>
+                    <p>Únos sezení přes ukradenou cookie nebo vnucení (fixace) Session ID uživateli předtím, než se přihlásí. Pokud se ID po login nezmění, útočník má přístup.</p>
+                </div>
+                <div class="status-box">
+                    <span class="code">MFA / 2FA Bypass</span>
+                    <p>Hledání logických chyb, které dovolí přeskočit druhý faktor (např. přístup přímo na <code>/dashboard</code> po zadání hesla, bez čekání na kód).</p>
+                </div>
+                <div class="status-box">
+                    <span class="code">OAuth 2.0 Misconfiguration</span>
+                    <p>Chyby v implementaci "Login with Google/Facebook". Například manipulace s <code>redirect_uri</code> pro krádež autorizačního kódu.</p>
+                </div>
+            </div>
+        </section>
+
+        
+
+        <section class="content-section">
+            <h2>Analýza v praxi: Reset hesla (Password Reset)</h2>
+            <p>Proces obnovy hesla je často nejzranitelnějším místem. Bug hunteři analyzují resetovací tokeny z hlediska:</p>
+            <div class="terminal-window">
+                <div class="terminal-header">auth_research — token_analysis</div>
+                <div class="terminal-body">
+                    <span class="prompt">GET /password-reset?token=MTI0_2026-01-25</span><br>
+                    <span class="output"># Dekódování Base64: 124_2026-01-25</span><br>
+                    <span class="output"># Zjištění: Token se skládá z ID uživatele a data.</span><br>
+                    <span class="prompt"># Útok: Predikce tokenu pro admina (ID 1) -> M_2026-01-25</span><br>
+                    <span class="output">Result: ACCOUNT_TAKEOVER_SUCCESS</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2>Prevence a Secure Session Management</h2>
+            <p>Moderní aplikace musí implementovat obranu, která počítá s automatizovanými útoky i lidskou chybou.</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Opatření</th>
+                        <th>Technická implementace</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>MFA / FIDO2</td><td>Povinný druhý faktor, ideálně hardwarové klíče.</td></tr>
+                    <tr><td>Cookie Hardening</td><td>Atributy: <code>HttpOnly</code>, <code>Secure</code>, <code>SameSite=Strict</code>.</td></tr>
+                    <tr><td>Rate Limiting</td><td>Blokování IP nebo účtu po X neúspěšných pokusech (nebo CAPTCHA).</td></tr>
+                    <tr><td>Token Rotation</td><td>Generování zcela nového Session ID po každé změně stavu (Login, Role change).</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="content-section">
+            <h2>Trendy OWASP 2025: Bezheslový přístup</h2>
+            <div class="knowledge-box" style="border-color: #00ff41;">
+                <p>Budoucnost směřuje k <strong>Passwordless</strong> (WebAuthn, Passkeys). Tyto technologie eliminují riziko Credential Stuffingu, protože uživatel nemá žádné statické heslo, které by mohl útočník zneužít. Nicméně i zde vznikají nové hrozby v implementaci API, která tyto protokoly obsluhují.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>TERMINAL_LOG: ACCESS_CONTROL_FAILURE_DETECTED // STATUS: CRITICAL</p>
+    </footer>
+</body>
+</html>

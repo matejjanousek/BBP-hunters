@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../styles/style.css">
+    <link rel="stylesheet" href="../styles/sidestyle.css">
+    <title>Broken Access Control | OWASP #1 Analysis</title>
+</head>
+<body>
+    <div class="overlay"></div>
+    
+    <header class="main-header">
+        <a href="web_security.html" class="header-link">
+            <h1>[ INSECURE_DESIGN ]</h1>
+            <p>Kliknutím se vrátíš zpět.</p>
+        </a>
+    </header>
+
+    <main class="detail-container">
+        <section class="content-section">
+            <h2>Chyba v základech</h2>
+            <p><strong>Insecure Design</strong> není o špatně napsaném kódu (bug), ale o špatně vymyšleném postupu (flaw). Aplikace může mít 100% testy pokrytý kód bez jediné injekce, a přesto být naprosto nebezpečná, protože její architektura dovoluje útočníkovi zneužít legitimní funkce k nelegitímním cílům.</p>
+            
+            <div class="knowledge-box">
+                <h3>Klíčové rozdíly pro Bug Bounty:</h3>
+                <ul>
+                    <li><strong>Implementation Flaw:</strong> SQL injection v přihlašovacím poli (chyba programátora).</li>
+                    <li><strong>Design Flaw:</strong> Možnost vyčerpat slevové kupóny díky chybějícímu ověření limitu na uživatele (chyba návrhu).</li>
+                    <li><strong>Trust Boundary Violation:</strong> Server slepě věří datům, která by měla být validována (např. cena produktu zaslaná z frontendu).</li>
+                </ul>
+            </div>
+        </section>
+
+        
+
+        <section class="content-section">
+            <h2>Pokročilé scénáře Business Logic chyb</h2>
+            <p>V BBP hledáme tzv. "Edge Cases" – situace, na které designér zapomněl.</p>
+            
+            <div class="grid">
+                <div class="status-box">
+                    <span class="code">Race Conditions</span>
+                    <p>Návrh nepočítá s paralelními požadavky. <strong>Příklad:</strong> Útočník pošle 10 požadavků na vyplacení 100 Kč z peněženky ve stejnou milisekundu. Pokud návrh nezamyká databázi, může vybrat 1000 Kč, i když má na účtu jen stovku.</p>
+                </div>
+                <div class="status-box">
+                    <span class="code">Step Skipping</span>
+                    <p>Obcházení workflow. <strong>Příklad:</strong> E-shop má kroky: 1. Košík, 2. Doprava, 3. Platba, 4. Potvrzení. Útočník zkusí skočit přímo z kroku 1 na krok 4 (přes přímou URL), čímž objedná zboží bez placení.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2>Klientská strana vs. Serverová realita</h2>
+            <p>Jeden z nejčastějších projevů Insecure Designu je přenesení odpovědnosti na uživatele. Nikdy nesmíme zapomenout: <strong>Client-side is attacker-controlled.</strong></p>
+            <div class="terminal-window">
+                <div class="terminal-header">api_request — checkout_process</div>
+                <div class="terminal-body">
+                    <span class="prompt">POST /api/order/submit</span><br>
+                    <span class="output">{</span><br>
+                    <span class="output">&nbsp;&nbsp;"item_id": "premium_vpn_sub",</span><br>
+                    <span class="output">&nbsp;&nbsp;"price": "0.01", <span class="error">// Hacker přepsal původních 1000.00</span></span><br>
+                    <span class="output">&nbsp;&nbsp;"currency": "CZK"</span><br>
+                    <span class="output">}</span><br>
+                    <span class="prompt"># Pokud server neověří cenu v DB, objednávka projde.</span>
+                </div>
+            </div>
+        </section>
+
+        
+
+        <section class="content-section">
+            <h2>Analýza workflow: Zneužití obnovy hesla</h2>
+            <p>Špatný návrh "Security Questions" (jméno psa, matky za svobodna) je dnes brán jako kritické selhání. Moderní útočník tyto informace získá z OSINT (Open Source Intelligence). Bezpečný design vyžaduje:</p>
+            <ul>
+                <li><strong>Out-of-band MFA:</strong> Kód přes SMS, e-mail nebo Authenticator aplikaci.</li>
+                <li><strong>Time-limited tokens:</strong> Odkazy pro obnovu, které expirují po pár minutách.</li>
+                <li><strong>No User Enumeration:</strong> Hláška by měla být "Pokud účet existuje, poslali jsme e-mail", nikoliv "Tento e-mail v databázi nemáme".</li>
+            </ul>
+        </section>
+
+        <section class="content-section">
+            <h2>Prevence: Threat Modeling & SDLC</h2>
+            <p>Bezpečnost musí být vryta do DNA aplikace od první schůzky s klientem.</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Koncept</th>
+                        <th>Popis</th>
+                        <th>Cíl</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Shift Left</td><td>Zapojení bezpečnosti do fáze analýzy.</td><td>Odhalení chyb dříve, než se napíše kód.</td></tr>
+                    <tr><td>Fail Securely</td><td>Při chybě se systém uzavře.</td><td>Zamezení nechtěnému povolení přístupu.</td></tr>
+                    <tr><td>Abuse Case Testing</td><td>Testování, jak lze funkci zneužít (negativní scénáře).</td><td>Zablokování útočných cest v logice.</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="content-section">
+            <h2>Shrnutí OWASP (A06:2025)</h2>
+            <div class="knowledge-box" style="border-color: #ff0041;">
+                <p>OWASP zdůrazňuje, že <strong>Insecure Design</strong> nelze opravit patchem (záplatou). Vyžaduje to změnu logiky aplikace. Pokud navrhnete systém, který dovoluje uživateli "vysát" API bez rate-limitingu, není to bug v kódu API, ale v jeho definici.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>TERMINAL_LOG: ACCESS_CONTROL_FAILURE_DETECTED // STATUS: CRITICAL</p>
+    </footer>
+</body>
+</html>

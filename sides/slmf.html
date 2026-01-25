@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../styles/style.css">
+    <link rel="stylesheet" href="../styles/sidestyle.css">
+    <title>Broken Access Control | OWASP #1 Analysis</title>
+</head>
+<body>
+    <div class="overlay"></div>
+    
+    <header class="main-header">
+        <a href="web_security.html" class="header-link">
+            <h1>[ SECURITY_LOGGING_AND_MONITORING_FAILURES ]</h1>
+            <p>Kliknutím se vrátíš zpět.</p>
+        </a>
+    </header>
+
+    <main class="detail-container">
+        <section class="content-section">
+            <h2>Detekce: Rozdíl mezi incidentem a katastrofou</h2>
+            <p><strong>Security Logging and Monitoring Failures</strong> nezpůsobují přímý průnik, ale určují, jak dlouho útočník v systému zůstane (tzv. <strong>Dwell Time</strong>). Bez kvalitního logování je organizace "slepá" a útočník může nerušeně exfiltrovat data po měsíce. V BBP hunteři sledují, zda aplikace detekuje anomálie nebo zda jim dovolí provádět agresivní fuzzing bez odezvy.</p>
+            
+            <div class="knowledge-box">
+                <h3>Kdy systém selhává:</h3>
+                <ul>
+                    <li><strong>Invisible Attacks:</strong> Útoky na autentizaci nebo eskalaci práv nejsou zaznamenány.</li>
+                    <li><strong>Lack of Real-time Alerting:</strong> Logy existují, ale nikdo na ně nereaguje v reálném čase.</li>
+                    <li><strong>Local-only Storage:</strong> Logy jsou uloženy na stejném serveru jako aplikace (snadný cíl pro smazání po kompromitaci).</li>
+                    <li><strong>Insufficient Context:</strong> Log obsahuje chybu, ale neobsahuje kdo, odkud a jak ji vyvolal.</li>
+                </ul>
+            </div>
+        </section>
+
+        
+
+        <section class="content-section">
+            <h2>Anatomie útoku na integritu logů</h2>
+            <p>Útočníci se aktivně snaží logovací systémy oslepit nebo zmást. Jako hunter bys měl rozumět těmto technikám:</p>
+            
+            <div class="grid">
+                <div class="status-box">
+                    <span class="code">Log Injection (CRLF)</span>
+                    <p>Vložením znaků <code>\r\n</code> do vstupu útočník vytvoří v logu falešné řádky. <br><strong>Příklad:</strong> <code>admin\n[INFO] Login successful</code> může zmást automatické skenery i lidské analytiky.</p>
+                </div>
+                <div class="status-box">
+                    <span class="code">Log Overwhelming (DoS)</span>
+                    <p>Zahltit logovací server miliony nepodstatných zpráv, aby v šumu zanikly záznamy o skutečném útoku nebo aby došlo k vyčerpání místa na disku.</p>
+                </div>
+            </div>
+        </section>
+
+        
+
+        <section class="content-section">
+            <h2>Strukturované logování vs. Chaos</h2>
+            <p>Aby byl monitoring efektivní, musí být logy čitelné stroji. Zapomeň na textové řetězce, budoucnost je v JSON formátu odesílaném do <strong>SIEM</strong> (Security Information and Event Management).</p>
+            
+            <div class="terminal-window">
+                <div class="terminal-header">siem_monitor — event_stream</div>
+                <div class="terminal-body">
+                    <span class="prompt">{</span><br>
+                    <span class="output">&nbsp;&nbsp;"timestamp": "2026-01-25T14:20:01Z",</span><br>
+                    <span class="output">&nbsp;&nbsp;"event_type": "AUTH_FAILURE",</span><br>
+                    <span class="output">&nbsp;&nbsp;"user_id": "9982",</span><br>
+                    <span class="output">&nbsp;&nbsp;"source_ip": "192.168.1.55",</span><br>
+                    <span class="output">&nbsp;&nbsp;"user_agent": "Mozilla/5.0 (Hydra_BruteForce_Tool)",</span><br>
+                    <span class="output">&nbsp;&nbsp;"severity": "CRITICAL",</span><br>
+                    <span class="output">&nbsp;&nbsp;"action": "BLOCK_IP"</span><br>
+                    <span class="prompt">}</span><br>
+                    <span class="output"># ALERT: Brute-force pattern detected. IP blocked automatically via SOAR.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2>Moderní monitoring: SIEM, SOAR a Cloud</h2>
+            <p>V roce 2026 už nestačí jen logovat na disk. Moderní infrastruktura využívá:</p>
+            <ul>
+                <li><strong>SIEM (Kibana/Splunk):</strong> Agregace logů z tisíců zdrojů a hledání korelací (např. "proč se uživatel přihlásil z Prahy a o minutu později z Tokia?").</li>
+                <li><strong>SOAR:</strong> Automatizovaná reakce. Pokud SIEM zjistí útok, SOAR automaticky změní pravidlo na firewallu.</li>
+                <li><strong>CloudWatch / Azure Monitor:</strong> Specifické nástroje pro efemérní (dočasné) kontejnery.</li>
+            </ul>
+        </section>
+
+        <section class="content-section">
+            <h2>Prevence: Jak neoslepnout</h2>
+            <div class="knowledge-box" style="border-color: #00ff41;">
+                <ul>
+                    <li><strong>Neprotokolujte citlivá data:</strong> Hesla, čísla karet a session tokeny nesmí být v logu (Pravidlo o ochraně soukromí).</li>
+                    <li><strong>Zajistěte integritu:</strong> Logy odesílejte přes šifrovaný kanál (TLS) na server, kde má útočník pouze právo zápisu, nikoliv čtení nebo mazání.</li>
+                    <li><strong>Monitorujte monitoring:</strong> Nastavte alarm na situaci, kdy přestanou logy ze serveru chodit (může to znamenat, že ho útočník vypnul).</li>
+                    <li><strong>Časová synchronizace:</strong> Všechny servery musí používat NTP pro synchronizaci času, jinak nelze incidenty rekonstruovat.</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>TERMINAL_LOG: ACCESS_CONTROL_FAILURE_DETECTED // STATUS: CRITICAL</p>
+    </footer>
+</body>
+</html>

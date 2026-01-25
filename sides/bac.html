@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../styles/style.css">
+    <link rel="stylesheet" href="../styles/sidestyle.css">
+    <title>Broken Access Control | OWASP #1 Analysis</title>
+</head>
+<body>
+    <div class="overlay"></div>
+    
+    <header class="main-header">
+        <a href="web_security.html" class="header-link">
+            <h1>[ BROKEN_ACCESS_CONTROL ]</h1>
+            <p>Kliknutím se vrátíš zpět.</p>
+        </a>
+    </header>
+
+    <main class="detail-container">
+        <section class="content-section">
+            <h2>Kritické riziko č. 1</h2>
+            <p><strong>Broken Access Control (BAC)</strong> nastává, když aplikace selže v prosazování pravidel pro přístup k datům a funkcím. Útočník tak může obejít autorizační mechanismy a jednat jako jiný uživatel nebo jako administrátor.</p>
+            
+            <div class="knowledge-box">
+                <h3>Základní pilíře bezpečné autorizace:</h3>
+                <ul>
+                    <li><strong>Principle of Least Privilege (PoLP):</strong> Uživatel má mít pouze ta práva, která nezbytně potřebuje (minimální privilegia).</li>
+                    <li><strong>Deny by Default:</strong> Pokud přístup není explicitně povolen, systém ho musí automaticky zamítnout.</li>
+                    <li><strong>Fail Securely:</strong> Pokud autorizační mechanismus selže (např. chyba v DB), musí se aplikace přepnout do stavu "přístup zamítnut", nikoliv "přístup povolen".</li>
+                </ul>
+            </div>
+        </section>
+
+        
+
+        <section class="content-section">
+            <h2>Hloubkové scénáře eskalace práv</h2>
+            <p>Jako bug hunter se musíš dívat na to, jakým směrem se můžeš v hierarchii práv "probourat".</p>
+            
+            <div class="grid">
+                <div class="status-box">
+                    <span class="code">Horizontální eskalace (IDOR)</span>
+                    <p>Útočník přistupuje k datům uživatele na stejné úrovni. <br>
+                    <strong>Příklad:</strong> Změna <code>/api/users/123</code> na <code>/api/users/124</code>. Pokud uvidíš cizí profil, máš IDOR.</p>
+                </div>
+                <div class="status-box">
+                    <span class="code">Vertikální eskalace</span>
+                    <p>Uživatel získá práva nadřízené role (např. Admina). <br>
+                    <strong>Příklad:</strong> Přidání parametru <code>&admin=true</code> do požadavku nebo přístup k <code>/admin/panel</code> v Cookies bez validace role.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2>Techniky manipulace s metadaty</h2>
+            <p>Aplikace často věří informacím, které jí posílá klient. To je zásadní chyba. Bug hunteři manipulují s:</p>
+            <ul>
+                <li><strong>JSON Web Tokens (JWT):</strong> Pokusy o změnu "claimů" v tokenu (např. změna <code>"role": "user"</code> na <code>"role": "admin"</code>).</li>
+                <li><strong>Skrytá pole formuláře:</strong> Úprava polí jako <code><input type="hidden" name="price" value="0"></code>.</li>
+                <li><strong>HTTP hlavičky:</strong> Použití <code>X-Original-URL</code> nebo <code>X-Forwarded-For</code> k obcházení IP restrikcí nebo WAF filtrů.</li>
+            </ul>
+        </section>
+
+
+        <section class="content-section">
+            <h2>Prevence pro vývojáře (Security Checklist)</h2>
+            <div class="knowledge-box" style="border-color: #ff0041;">
+                <p><strong>Zlaté pravidlo:</strong> Kontrola oprávnění musí probíhat na <strong>serveru</strong> při každém jednotlivém požadavku. Nikdy nespoléhejte na schovávání prvků v UI.</p>
+                <ul>
+                    <li>Používejte <strong>UUID</strong> (např. <code>550e8400-e29b-41d4...</code>) místo sekvenčních ID, aby nešlo data "vytěžit" (insecure enumerace).</li>
+                    <li>Implementujte <strong>ACL (Access Control Lists)</strong> centrálně, ne rozeseté po celém kódu.</li>
+                    <li>Vypněte <strong>Directory Listing</strong> na úrovni webového serveru (Nginx/Apache).</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>TERMINAL_LOG: ACCESS_CONTROL_FAILURE_DETECTED // STATUS: CRITICAL</p>
+    </footer>
+</body>
+</html>
