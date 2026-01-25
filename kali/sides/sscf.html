@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../styles/style.css">
+    <link rel="stylesheet" href="../styles/sidestyle.css">
+    <title>Broken Access Control | OWASP #1 Analysis</title>
+</head>
+<body>
+    <div class="overlay"></div>
+    
+    <header class="main-header">
+        <a href="web_security.html" class="header-link">
+            <h1>[ SOFTWARE_SUPPLY_CHAIN_FAILURES ]</h1>
+            <p>Kliknutím se vrátíš zpět.</p>
+        </a>
+    </header>
+
+    <main class="detail-container">
+        <section class="content-section">
+            <h2>Krize důvěry v moderním vývoji</h2>
+            <p>Tato kategorie se nezaměřuje na chyby, které jsi napsal ty, ale na chyby v tom, co do svého projektu importuješ. **Supply Chain Attack** je útok na dodavatelský řetězec softwaru. V dnešní době 80 % kódu průměrné aplikace tvoří externí knihovny (npm, PyPI, NuGet). Pokud je napaden jeden článek, padá celá pyramida.</p>
+            
+            <div class="knowledge-box">
+                <h3>Klíčové vektory útoku:</h3>
+                <ul>
+                    <li><strong>Software Supply Chain:</strong> Útok na repozitáře, CI/CD nástroje a registry balíčků.</li>
+                    <li><strong>Data Integrity:</strong> Přijímání serializovaných objektů, firmware updatů nebo dat bez ověření digitálního podpisu.</li>
+                    <li><strong>CI/CD Pipelines:</strong> Manipulace s procesem automatického nasazení (např. úprava <code>Jenkinsfile</code> nebo GitHub Actions).</li>
+                </ul>
+            </div>
+        </section>
+
+        
+
+        <section class="content-section">
+            <h2>Pokročilé techniky kompromitace</h2>
+            <p>V BBP hunteři hledají tyto specifické trhliny v automatizaci a správě balíčků:</p>
+            
+            <div class="grid">
+                <div class="status-box">
+                    <span class="code">Dependency Confusion</span>
+                    <p>Útočník nahraje balíček se stejným názvem jako má interní knihovna firmy do veřejného registru s vyšším verzovacím číslem (např. v9.9.9). Build systém si pak automaticky stáhne škodlivý kód z internetu místo bezpečné interní verze.</p>
+                </div>
+                <div class="status-box">
+                    <span class="code">Insecure Deserialization</span>
+                    <p>Převedení dat (JSON, XML, binární objekty) na objekty v paměti. Pokud útočník podvrhne objekt, který při rozbalování spustí <strong>RCE (Remote Code Execution)</strong>, získává plnou kontrolu nad serverem.</p>
+                </div>
+            </div>
+        </section>
+
+      
+
+        <section class="content-section">
+            <h2>Proč je detekce téměř nemožná?</h2>
+            <p>Váš vlastní kód může projít všemi testy a audity. Problém je v "černé skříňce" závislostí. Příkladem je útok na <strong>SolarWinds</strong> nebo <strong>Log4j</strong>, kde zranitelnost v jedné hluboko vnořené knihovně ohrozila miliony systémů po celém světě.</p>
+        </section>
+
+        <section class="content-section">
+            <h2>Prevence: Strategie Zero Trust</h2>
+            <p>Ochrana vyžaduje přechod od slepé důvěry k neustálému ověřování integrity.</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nástroj / Proces</th>
+                        <th>Funkce</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>SBOM</td><td>Software Bill of Materials – kompletní "seznam ingrediencí" vašeho softwaru.</td></tr>
+                    <tr><td>Integrity Hashes</td><td>Používání <code>package-lock.json</code> nebo <code>yarn.lock</code> pro fixaci konkrétních verzí přes hashe.</td></tr>
+                    <tr><td>Signed Commits</td><td>Podepisování každého commitu pomocí GPG klíče pro ověření identity programátora.</td></tr>
+                    <tr><td>Vulnerability Scanning</td><td>Nástroje jako Snyk, Dependabot nebo SonarQube skenující známé CVE v závislostech.</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="content-section">
+            <h2>Pohled OWASP 2025</h2>
+            <div class="knowledge-box" style="border-color: #00ff41;">
+                <p>Nová doporučení kladou důraz na zabezpečení <strong>Build serverů</strong> a <strong>Artifact repozitářů</strong>. Jakákoliv neautorizovaná změna v CI/CD pipeline (např. v Dockerfile) musí spustit alarm. Integrita musí být hlídána od prvního řádku kódu až po finální distribuci k uživateli.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>TERMINAL_LOG: ACCESS_CONTROL_FAILURE_DETECTED // STATUS: CRITICAL</p>
+    </footer>
+</body>
+</html>

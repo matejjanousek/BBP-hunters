@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../styles/style.css">
+    <link rel="stylesheet" href="../styles/sidestyle.css">
+    <title>Database Core | Bug Bounty Academy</title>
+</head>
+<body>
+    <div class="overlay"></div>
+    
+    <header class="main-header">
+        <a href="web_basics.html" class="header-link">
+            <h1>[ DATABASE_SQL ]</h1>
+            <p>Kliknutím se vrátíš do zpět.</p>
+        </a>
+    </header>
+
+    <main class="detail-container">
+        <section class="content-section">
+            <h2>Relační databáze a SQL</h2>
+            <p>SQL (Structured Query Language) je standardizovaný jazyk pro správu dat v relačních databázích. Data jsou zde organizována do tabulek propojených relacemi. Jako bug hunter používáš SQL k tomu, abys přinutil databázi vydat data, ke kterým nemáš mít přístup.</p>
+            
+            <div class="knowledge-box">
+                <h3>Základní pojmy:</h3>
+                <ul>
+                    <li><strong>Tabulka (Table):</strong> Skládá se z řádků (záznamů) a sloupců (atributů).</li>
+                    <li><strong>Primární klíč (PK):</strong> Unikátní ID každého řádku (např. <code>user_id</code>).</li>
+                    <li><strong>Cizí klíč (FK):</strong> Odkaz na PK v jiné tabulce, který vytváří vztah mezi daty.</li>
+                    <li><strong>RDBMS:</strong> Systémy jako PostgreSQL, MySQL nebo SQLite, které tyto databáze spravují.</li>
+                </ul>
+            </div>
+        </section>
+
+        
+
+        <section class="content-section">
+            <h2>Rozdělení SQL příkazů</h2>
+            <p>SQL se dělí do skupin podle toho, zda definujeme strukturu nebo manipulujeme s obsahem:</p>
+            <div class="grid">
+                <div class="status-box">
+                    <span class="code">DDL (Definition)</span>
+                    <p>Definuje "krabice" na data. Příkazy: <code>CREATE</code>, <code>ALTER</code>, <code>DROP</code>.</p>
+                </div>
+                <div class="status-box">
+                    <span class="code">DML (Manipulation)</span>
+                    <p>Práce s daty (CRUD). To nejdůležitější: <code>SELECT</code>, <code>INSERT</code>, <code>UPDATE</code>, <code>DELETE</code>.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2>Klíčové příkazy v praxi</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Operace</th>
+                        <th>SQL Příkaz</th>
+                        <th>Vysvětlení</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Výběr</td><td><code>SELECT * FROM Uzivatele;</code></td><td>Vybere všechna data z tabulky.</td></tr>
+                    <tr><td>Filtrování</td><td><code>SELECT jmeno FROM Uzivatele WHERE vek > 18;</code></td><td>Filtruje uživatele podle podmínky.</td></tr>
+                    <tr><td>Řazení</td><td><code>SELECT * FROM Produkty ORDER BY cena DESC;</code></td><td>Seřadí data od nejvyšší ceny.</td></tr>
+                    <tr><td>Aktualizace</td><td><code>UPDATE Uzivatele SET heslo = '123' WHERE id = 5;</code></td><td>Změní data u konkrétního záznamu.</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="content-section">
+            <h2>Pokročilé mechanismy</h2>
+            <p>Síla SQL spočívá v propojování tabulek a výpočtech nad daty:</p>
+            <ul>
+                <li><strong>JOIN:</strong> Spojuje data z více tabulek (např. spojení objednávek se jmény zákazníků).</li>
+                <li><strong>Agregační funkce:</strong> <code>COUNT()</code> (počet), <code>SUM()</code> (součet), <code>AVG()</code> (průměr), <code>MAX/MIN</code>.</li>
+            </ul>
+        </section>
+
+        
+    </main>
+
+    <footer>
+        <p>STATUS: DATABASE_MODULE_LOADED // SOURCE: TO-LEARN_DOCS</p>
+    </footer>
+</body>
+</html>

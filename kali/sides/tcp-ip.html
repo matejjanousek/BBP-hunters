@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../styles/style.css">
+    <link rel="stylesheet" href="../styles/sidestyle.css">
+    <title>Network Layers | Bug Bounty Academy</title>
+</head>
+<body>
+    <div class="overlay"></div>
+    
+    <header class="main-header">
+        <a href="web_basics.html" class="header-link">
+            <h1>[ TCP / IP ]</h1>
+            <p>Kliknutím se vrátíš zpět.</p>
+        </a>
+    </header>
+
+    <main class="detail-container">
+        <section class="content-section">
+            <h2>Praktický síťový model (DoD)</h2>
+            <p>TCP/IP je rodina protokolů, která pohání moderní internet. Na rozdíl od teoretického OSI modelu se v praxi používá tento 4-vrstvý model. Při průchodu zásobníkem (stackem) probíhá <strong>zapouzdření (encapsulation)</strong>, kdy každá vrstva přidá svou hlavičku.</p>
+            
+            <table>
+                <thead>
+                    <tr>
+                        <th>Vrstva</th>
+                        <th>Jednotka (PDU)</th>
+                        <th>Klíčové protokoly</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Aplikační</td><td>Data / Message</td><td>HTTP, DNS, SSH, SMTP</td></tr>
+                    <tr><td>Transportní</td><td>Segment / Datagram</td><td>TCP, UDP</td></tr>
+                    <tr><td>Internetová</td><td>Paket (Packet)</td><td>IP, ICMP, ARP</td></tr>
+                    <tr><td>Síťové rozhraní</td><td>Rámec (Frame)</td><td>Ethernet, Wi-Fi</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="content-section">
+            <h2>Transportní vrstva: Spolehlivost vs. Rychlost</h2>
+            <p>Zde se rozhoduje o způsobu přenosu dat. Pro bug huntera je kritické rozumět rozdílu, aby věděl, co hledat v Nmapu.</p>
+            <div class="grid">
+                <div class="status-box">
+                    <span class="code">TCP (Transmission Control)</span>
+                    <p><strong>Spojovaný a spolehlivý.</strong> Používá 3-way handshake (SYN -> SYN-ACK -> ACK). Zajišťuje doručení a správné pořadí. Využití: Web, E-mail.</p>
+                </div>
+                <div class="status-box">
+                    <span class="code">UDP (User Datagram)</span>
+                    <p><strong>Nespojovaný a rychlý.</strong> Data se "vystřelí" bez ověření. Nízká režie (overhead). Využití: Streaming, DNS dotazy, Hry.</p>
+                </div>
+            </div>
+        </section>
+
+        <img src="../Images/tcp-Img.jpg" alt="Encapsulation Process Diagram" class="img">
+
+        <section class="content-section">
+            <h2>Internetová vrstva: Směrování a Adresace</h2>
+            <p>Řeší logickou cestu paketu z bodu A do bodu B přes routery.</p>
+            <div class="knowledge-box">
+                <h3>Klíčové prvky:</h3>
+                <ul>
+                    <li><strong>IP Protokol:</strong> Zajišťuje doručení na základě adres (IPv4: 32-bit, IPv6: 128-bit).</li>
+                    <li><strong>ICMP:</strong> Slouží k diagnostice (např. <code>ping</code> a <code>traceroute</code>).</li>
+                    <li><strong>ARP:</strong> Mechanismus, který zjišťuje fyzickou MAC adresu na základě známé IP adresy.</li>
+                </ul>
+            </div>
+        </section>
+
+        
+    </main>
+
+    <footer>
+        <p>TERMINAL_LOG: NETWORK_STACK_ANALYZED // SOURCE: BBP_GUIDE</p>
+    </footer>
+</body>
+</html>
