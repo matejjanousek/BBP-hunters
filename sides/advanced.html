@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../styles/style.css">
+    <link rel="stylesheet" href="../styles/sidestyle.css">
+    <title>Linux Mastery | Security Researcher Toolkit</title>
+</head>
+<body>
+    <div class="overlay"></div>
+    
+    <header class="main-header">
+        <a href="kali-tools.html" class="header-link">
+            <h1>[ ADVANCED_LINUX_COMMANDS ]</h1>
+            <p>Kliknutím se vrátíš zpět.</p>
+        </a>
+    </header>
+
+    <main class="detail-container">
+        <section class="content-section">
+            <h2>Find: Nástroj pro vyhledávání</h2>
+            <p>Příkaz <code>find</code> není jen o hledání souborů podle jména. Je to vyhledávací engine, který dokáže filtrovat podle oprávnění, času, velikosti nebo vlastníka. V BBP ho používáme k nalezení "zapomenutých" konfiguračních souborů nebo binárek se SUID bitem.</p>
+            
+            <div class="terminal-window">
+                <div class="terminal-header">bash — advanced_find_ops</div>
+                <div class="terminal-body">
+                    <span class="prompt"># Hledání souborů s SUID bitem (potenciální cesta k rootovi):</span><br>
+                    <span class="prompt">$</span> find / -perm -4000 -type f 2>/dev/null<br>
+                    <span class="prompt"># Hledání konfiguračních souborů, které může číst kdokoli (World Readable):</span><br>
+                    <span class="prompt">$</span> find /etc -type f -perm -o+r<br>
+                    <span class="prompt"># Vyhledání velkých souborů (>100MB) – často zapomenuté zálohy DB:</span><br>
+                    <span class="prompt">$</span> find / -type f -size +100M 2>/dev/null
+                </div>
+            </div>
+            <p><em>Poznámka: <code>2>/dev/null</code> utiší stovky chyb "Permission denied", které by jinak zahltily tvůj výstup.</em></p>
+        </section>
+
+        
+
+        <section class="content-section">
+            <h2>File & Stat: Co je uvnitř a kdy se to hnulo?</h2>
+            <p>V Linuxu přípony souborů nic neznamenají. Útočník může pojmenovat PHP shell jako <code>image.png</code>. Příkaz <code>file</code> se dívá na magické bajty (hlavičku), aby zjistil pravou identitu souboru.</p>
+            <div class="grid">
+                <div class="status-box">
+                    <span class="code">file</span>
+                    <p>Analyzuje hlavičku souboru. Klíčové při testování File Upload zranitelností. <br><strong>Výstup:</strong> <code>image.png: PHP script, ASCII text executable</code>.</p>
+                </div>
+                <div class="status-box">
+                    <span class="code">stat</span>
+                    <p>Zobrazí "Inody" a časová razítka (MAC časy). Pomůže ti zjistit, kdy byl soubor naposledy čten (Access), změněn (Modify) nebo kdy se změnila jeho metadata (Change).</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2>Kapacita a Využití: du & df</h2>
+            <p>Pokud provádíš zátěžové testy (DoS) nebo exfiltraci dat, musíš vědět, kolik místa máš k dispozici a kde jsou uložena data.</p>
+            <ul>
+                <li><strong>df -h:</strong> Zobrazí volné místo na všech připojených discích v lidsky čitelném formátu.</li>
+                <li><strong>du -sh *:</strong> Rychle spočítá velikost všech složek v aktuálním adresáři. Ideální pro hledání objemných logů nebo zapomenutých dumpů databází.</li>
+            </ul>
+        </section>
+
+        
+
+        <section class="content-section">
+            <h2>Chmod & Chown: Ovládnutí přístupu</h2>
+            <p>Základní pilíře bezpečnosti v Linuxu. Každý objekt má vlastníka, skupinu a práva pro ostatní (u/g/o).</p>
+            <div class="terminal-window">
+                <div class="terminal-header">bash — permission_management</div>
+                <div class="terminal-body">
+                    <span class="prompt">$</span> chmod 600 id_rsa <span class="output"># Nastaví SSH klíč tak, aby ho mohl číst jen vlastník (nutné pro SSH).</span><br>
+                    <span class="prompt">$</span> chmod 755 script.sh <span class="output"># Spustitelný soubor pro všechny, ale zapisovat může jen vlastník.</span><br>
+                    <span class="prompt">$</span> chown www-data:www-data config.php <span class="output"># Změní vlastníka na webový server.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2>Sed & Awk: Manipulace s textovými streamy</h2>
+            <p>Tyto nástroje jsou v podstatě mini-programovací jazyky. Jsou nezbytné pro parsování výstupů z nástrojů jako Nmap nebo Subfinder.</p>
+            <div class="knowledge-box">
+                <p><strong>Sed (Stream Editor):</strong> Nejčastěji se používá pro nahrazování textu. <br><code>cat log.txt | sed 's/chyba/OPRAVA/g'</code></p>
+                <p><strong>Awk:</strong> Mistr ve zpracování sloupců. <br><code>awk -F':' '{ print $1 }' /etc/passwd</code> <br>(Vytáhne pouze první sloupec - uživatelská jména - ze souboru se separátorem dvojtečkou).</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>TERMINAL_LOG: LINUX_BASICS_LOADED // USER: ROOT_IN_TRAINING // UPTIME: 99.9%</p>
+    </footer>
+</body>
+</html>

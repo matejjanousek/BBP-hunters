@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../styles/style.css">
+    <link rel="stylesheet" href="../styles/sidestyle.css">
+    <title>Linux Mastery | Security Researcher Toolkit</title>
+</head>
+<body>
+    <div class="overlay"></div>
+    
+    <header class="main-header">
+        <a href="kali-tools.html" class="header-link">
+            <h1>[ ADVANCED_LINUX_COMMANDS ]</h1>
+            <p>Kliknutím se vrátíš zpět.</p>
+        </a>
+    </header>
+
+    <main class="detail-container">
+        <section class="content-section">
+            <h2>1. Nmap (Network Mapper)</h2>
+            <p>Nmap je oči hackera. Slouží k objevování hostitelů a služeb v síti. V BBP ho používáme k identifikaci otevřených portů a verzí běžících služeb (Fingerprinting), což odhaluje cestu k CVE.</p>
+            
+            <div class="terminal-window">
+                <div class="terminal-header">bash — nmap_recon</div>
+                <div class="terminal-body">
+                    <span class="prompt"># Agresivní sken (detekce OS, verzí a skripty):</span><br>
+                    <span class="prompt">$</span> nmap -A -T4 target.com<br>
+                    <span class="prompt"># Skenování všech 65535 portů (pomalé, ale důkladné):</span><br>
+                    <span class="prompt">$</span> nmap -p- target.com<br>
+                    <span class="prompt"># Detekce zranitelností pomocí NSE skriptů:</span><br>
+                    <span class="prompt">$</span> nmap --script vuln target.com
+                </div>
+            </div>
+        </section>
+
+        
+
+        <section class="content-section">
+            <h2>2. Burp Suite</h2>
+            <p>Burp Suite je intercepting proxy. Stojí mezi tvým prohlížečem a serverem, zachytává požadavky a umožňuje ti je libovolně měnit před odesláním. Je to nejdůležitější nástroj pro manuální web hacking.</p>
+            <div class="grid">
+                <div class="status-box">
+                    <span class="code">Proxy & Repeater</span>
+                    <p>Zachyť požadavek a v Repeateru ho posílej znovu s upravenými parametry (např. změna ceny v košíku).</p>
+                </div>
+                <div class="status-box">
+                    <span class="code">Intruder</span>
+                    <p>Automatizovaný nástroj pro bruteforce útoky, fuzzing parametrů a hledání skrytých adresářů.</p>
+                </div>
+            </div>
+        </section>
+
+        
+
+        <section class="content-section">
+            <h2>3. SQLmap</h2>
+            <p>SQLmap je automatizovaný "vrták" na SQL injekce. Pokud najdeš podezřelý parametr, SQLmap se postará o detekci typu injekce a následnou exfiltraci dat (dumpování databáze).</p>
+            
+            <div class="terminal-window">
+                <div class="terminal-header">bash — sqlmap_attack</div>
+                <div class="terminal-body">
+                    <span class="prompt"># Automatický test URL parametru:</span><br>
+                    <span class="prompt">$</span> sqlmap -u "http://target.com/vuln.php?id=1" --batch<br>
+                    <span class="prompt"># Získání názvů databází:</span><br>
+                    <span class="prompt">$</span> sqlmap -u "http://target.com/id=1" --dbs<br>
+                    <span class="prompt"># Dumpování tabulky uživatelů:</span><br>
+                    <span class="prompt">$</span> sqlmap -u "http://target.com/id=1" -D db_name -T users --dump
+                </div>
+            </div>
+            <p><em>Varování: SQLmap je velmi hlučný. V reálném BBP používej <code>--random-agent</code> a <code>--level/--risk</code> opatrně.</em></p>
+        </section>
+
+        
+
+        <section class="content-section">
+            <h2>4. Nikto</h2>
+            <p>Nikto je open-source webový skener, který hledá nebezpečné soubory (jako <code>config.php.bak</code>), zastaralý software a chyby v konfiguraci serveru (např. povolené nebezpečné HTTP metody).</p>
+            <div class="knowledge-box">
+                <p><strong>Klíčové vlastnosti:</strong> Identifikuje přes 6700 potenciálně nebezpečných souborů/programů a kontroluje zastaralé verze serverů (Apache, nginx, IIS).</p>
+                <span class="prompt">$</span> nikto -h http://target.com -Tuning 4
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2>Synergie nástrojů v BBP</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Fáze útoky</th>
+                        <th>Nástroj</th>
+                        <th>Cíl</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>Recon</td><td>Nmap</td><td>Zmapování povrchu útoku.</td></tr>
+                    <tr><td>Vulnerability Scan</td><td>Nikto</td><td>Hledání známých konfiguračních chyb.</td></tr>
+                    <tr><td>Manual Analysis</td><td>Burp Suite</td><td>Hledání Business Logic chyb a IDOR.</td></tr>
+                    <tr><td>Exploitation</td><td>SQLmap</td><td>Automatizované zneužití SQL injekce.</td></tr>
+                </tbody>
+            </table>
+        </section>
+    </main>
+
+    <footer>
+        <p>TERMINAL_LOG: LINUX_BASICS_LOADED // USER: ROOT_IN_TRAINING // UPTIME: 99.9%</p>
+    </footer>
+</body>
+</html>

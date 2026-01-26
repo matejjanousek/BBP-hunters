@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../styles/style.css">
+    <link rel="stylesheet" href="../styles/sidestyle.css">
+    <title>Broken Access Control | OWASP #1 Analysis</title>
+</head>
+<body>
+    <div class="overlay"></div>
+    
+    <header class="main-header">
+        <a href="web_security.html" class="header-link">
+            <h1>[ CRYPTOGRAPHIC_FAILURES ]</h1>
+            <p>Kliknutím se vrátíš zpět.</p>
+        </a>
+    </header>
+
+    <main class="detail-container">
+        <section class="content-section">
+            <h2>Když "zámek" nefunguje</h2>
+            <p>Dříve známé jako <em>Sensitive Data Exposure</em>. Tato kategorie se zaměřuje na chyby v implementaci šifer, které vedou k odhalení citlivých informací. V BBP hledáme data, která jsou sice "šifrovaná", ale díky slabým algoritmům nebo chybám v klíčích jsou v podstatě veřejná.</p>
+            
+            <div class="knowledge-box">
+                <h3>Hlavní technické nedostatky:</h3>
+                <ul>
+                    <li><strong>Insufficient Entropy:</strong> Generátory náhodných čísel (PRNG), které nejsou kryptograficky bezpečné, vedou k předvídatelným tokenům.</li>
+                    <li><strong>Hardcoded Secrets:</strong> API klíče, symetrické klíče (AES) nebo certifikáty natvrdo zapsané v kódu nebo v <code>.git</code> historii.</li>
+                    <li><strong>Lack of Salting:</strong> Hashe hesel bez unikátní "soli" (salt), umožňující bleskové dešifrování přes Rainbow Tables.</li>
+                </ul>
+            </div>
+        </section>
+
+        
+
+        <section class="content-section">
+            <h2>Typy šifer a jejich slabiny</h2>
+            <p>Jako bug hunter musíš rozlišovat mezi tím, co je bezpečné a co je "legacy" (zastaralé).</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Algoritmus</th>
+                        <th>Stav</th>
+                        <th>Riziko / Poznámka</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>MD5 / SHA-1</td><td><span class="code error">BROKEN</span></td><td>Kolize a extrémně rychlý brute-force.</td></tr>
+                    <tr><td>DES / 3DES</td><td><span class="code error">DEPRECATED</span></td><td>Příliš krátký klíč (56 bitů). Dnes prolomitelné za pár hodin.</td></tr>
+                    <tr><td>AES-256</td><td><span class="code">SECURE</span></td><td>Standard pro symetrické šifrování dat v klidu (At Rest).</td></tr>
+                    <tr><td>Argon2 / bcrypt</td><td><span class="code">SECURE</span></td><td>Moderní hashing pro hesla s nastavitelnou náročností (Work Factor).</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section class="content-section">
+            <h2>Moderní vektory: MitM a Downgrade útoky</h2>
+            <p>Útočníci se nesnaží "zlomit" AES-256. Místo toho se snaží donutit server k použití slabší verze protokolu.</p>
+            <div class="grid">
+                <div class="status-box">
+                    <span class="code">TLS Downgrade</span>
+                    <p>Vynucení použití TLS 1.0 nebo 1.1, které obsahují známé chyby (např. POODLE, BEAST). Cílem je dešifrovat session cookies.</p>
+                </div>
+                <div class="status-box">
+                    <span class="code">Weak PRNG</span>
+                    <p>Pokud resetovací token pro heslo používá <code>Math.random()</code> místo <code>crypto.getRandomValues()</code>, je predikovatelný.</p>
+                </div>
+            </div>
+        </section>
+
+        
+
+        <section class="content-section">
+            <h2>Technická analýza: Salt & Pepper</h2>
+            <p>Proč nestačí jen hashovat? Bez soli jsou stejná hesla u různých uživatelů uložena jako identické řetězce.</p>
+            <div class="terminal-window">
+                <div class="terminal-header">crypto_analysis — hashing_demo</div>
+                <div class="terminal-body">
+                    <span class="prompt"># Špatně (MD5):</span> 1a1dc91c907325c69271ddf0c944bc72 (heslo "123456")<br>
+                    <span class="prompt"># Správně (Argon2id + Salt):</span> <br>
+                    <span class="output">$argon2id$v=19$m=65536,t=3,p=4$X0T... (unikátní pro každého)</span><br>
+                    <span class="output"># Výsledek: I stejné heslo vypadá v DB pokaždé úplně jinak.</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2>Prevence: "Don't Roll Your Own Crypto"</h2>
+            <p>Zlaté pravidlo kryptografie: Nikdy se nesnažte vymyslet vlastní šifrování. Používejte prověřené knihovny a standardy.</p>
+            <div class="knowledge-box" style="border-color: #00ff41;">
+                <ul>
+                    <li><strong>Vynucení HSTS:</strong> Hlavička <code>Strict-Transport-Security</code> zajistí, že prohlížeč nikdy nepoužije HTTP.</li>
+                    <li><strong>Key Rotation:</strong> Pravidelná obměna šifrovacích klíčů a jejich uložení v bezpečných úložištích (HSM, AWS KMS).</li>
+                    <li><strong>Perfect Forward Secrecy (PFS):</strong> Zajišťuje, že i když je v budoucnu ukraden soukromý klíč serveru, minulé nahrávky komunikace nelze dešifrovat.</li>
+                </ul>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>TERMINAL_LOG: ACCESS_CONTROL_FAILURE_DETECTED // STATUS: CRITICAL</p>
+    </footer>
+</body>
+</html>

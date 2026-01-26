@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../styles/sidestyle.css">
+    <link rel="stylesheet" href="../styles/style.css">
+    <title>Protocol Detail | Bug Bounty Academy</title>
+</head>
+<body>
+    <main class="detail-container">
+        <div class="overlay"></div>
+    
+        <header class="main-header">
+            <a href="web_basics.html" class="header-link">
+                <h1>[ HTTP / HTTPS ]</h1>
+                <p>Kliknutím se vrátíš zpět.</p>
+            </a>
+        </header>
+
+        <main class="detail-container">
+            <section class="content-section">
+                <h2>Komunikační protokol</h2>
+                <p>Představ si to jako soubor pravidel, podle kterých si tvůj prohlížeč (klient) povídá se serverem. Pro bug huntera je klíčové vidět rozdíl mezi HTTP a jeho šifrovanou verzí HTTPS.</p>
+                
+                <div class="knowledge-box">
+                    <h3>HTTP vs HTTPS: Hlavní rozdíly</h3>
+                    <ul>
+                        <li><strong>Bezpečnost:</strong> V HTTP může kdokoli na cestě (např. útočník na Wi-Fi) číst hesla nebo data. HTTPS vše šifruje pomocí TLS.</li>
+                        <li><strong>Porty:</strong> HTTP standardně operuje na portu <strong>80</strong>, zatímco HTTPS na portu <strong>443</strong>.</li>
+                        <li><strong>Důvěryhodnost:</strong> HTTPS zabezpečuje nejen data v těle, ale šifruje i hlavičky (Headers) a cookies.</li>
+                    </ul>
+                </div>
+            </section>
+    
+
+    
+    
+        <img src="../Images/http-Img.jpg" alt="[Image of HTTP Request and Response message structure]" class="img">
+    
+    
+            <section class="content-section">
+                <h2>Metody a Akce</h2>
+                <p>Každý požadavek musí definovat, jakou akci chce provést. Tyto metody uvidíš v každém logu tvé proxy.</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Metoda</th>
+                            <th>Účel</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>GET</td><td>Získání dat (např. otevření článku)</td></tr>
+                        <tr><td>POST</td><td>Odeslání nových dat (např. registrace uživatele)</td></tr>
+                        <tr><td>PUT/PATCH</td><td>Aktualizace stávajících dat nebo jejich částí</td></tr>
+                        <tr><td>DELETE</td><td>Odstranění dat ze serveru</td></tr>
+                    </tbody>
+                </table>
+            </section>
+    
+            <section class="content-section">
+                <h2>Stavové kódy (Response Status)</h2>
+                <p>Server ti vždy odpoví kódem, který říká, jak tvůj požadavek dopadl.</p>
+                <div class="grid">
+                    <div class="status-box">
+                        <span class="code">2xx</span>
+                        <p><strong>Success:</strong> 200 OK (Vše v pořádku), 201 (Vytvořeno).</p>
+                    </div>
+                    <div class="status-box">
+                        <span class="code">3xx</span>
+                        <p><strong>Redirection:</strong> 301 (Trvalé), 302 (Dočasné přesměrování).</p>
+                    </div>
+                    <div class="status-box error">
+                        <span class="code">4xx</span>
+                        <p><strong>Client Error:</strong> 403 Forbidden (Zakázáno), 404 Not Found (Neexistuje).</p>
+                    </div>
+                    <div class="status-box error">
+                        <span class="code">5xx</span>
+                        <p><strong>Server Error:</strong> 500 (Chyba serveru), 503 (Nedostupné).</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="content-section">
+                <h2>Architektura</h2>
+                <p>HTTP a HTTPS jsou protokoly <strong>aplikační vrstvy (vrstva 7)</strong>. Zatímco HTTP definuje sémantiku přenosu, HTTPS přidává kryptografickou vrstvu pro zajištění bezpečnosti.</p>
+                
+                <div class="knowledge-box">
+                    <h3>Bezstavovost (Statelessness)</h3>
+                    <p>Každá transakce je nezávislá. Server standardně "zapomíná", kdo jsi, hned po odpovědi. K udržení identity (přihlášení) se proto používají <strong>Cookies</strong> a <strong>Session tokeny</strong> – primární cíle pro bug huntery.</p>
+                </div>
+            </section>
+    
+            <section class="content-section">
+                <h2>HTTPS: Více než jen šifrování</h2>
+                <p>HTTPS (HTTP over TLS) stojí na třech pilířích, které chrání data na cestě mezi klientem a serverem:</p>
+                <div class="grid">
+                    <div class="status-box">
+                        <span class="code">Důvěrnost</span>
+                        <p>Asymetrická kryptografie (RSA) pro výměnu klíčů a symetrická (AES) pro data.</p>
+                    </div>
+                    <div class="status-box">
+                        <span class="code">Integrita</span>
+                        <p>Ověření pomocí MAC, zda data nebyla cestou modifikována útočníkem.</p>
+                    </div>
+                    <div class="status-box">
+                        <span class="code">Autentizace</span>
+                        <p>Digitální certifikáty (X.509) potvrzují, že server je skutečně ten, za koho se vydává.</p>
+                    </div>
+                </div>
+            </section>
+        
+            <section class="content-section">
+                <h2>Evoluce: Od TCP k QUIC</h2>
+                <p>Srovnání verzí protokolu z hlediska výkonu a bezpečnosti:</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Funkce</th>
+                            <th>HTTP/1.1</th>
+                            <th>HTTP/2</th>
+                            <th>HTTP/3</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr><td>Transport</td><td>TCP</td><td>TCP</td><td><strong>QUIC (UDP)</strong></td></tr>
+                        <tr><td>Formát</td><td>Textový</td><td>Binární</td><td>Binární</td></tr>
+                        <tr><td>Multiplexing</td><td>Ne</td><td>Ano</td><td>Ano (nativní)</td></tr>
+                        <tr><td>Zabezpečení</td><td>Volitelné</td><td>Vyžadováno</td><td><strong>Povinné</strong></td></tr>
+                    </tbody>
+                </table>
+                <p><small>// Proč UDP v HTTP/3? Řeší problém <em>Head-of-Line blocking</em>. Ztráta jednoho paketu nezastaví celé spojení.</small></p>
+            </section>
+        </main>
+    
+        <footer>
+            <p>TERMINAL_LOG: HTTP_STACK_DUMP // SOURCE: BBP_GUIDE-LIST</p>
+        </footer>
+</body>
+</html>

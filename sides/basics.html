@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="../styles/style.css">
+    <link rel="stylesheet" href="../styles/sidestyle.css">
+    <title>Linux Mastery | Security Researcher Toolkit</title>
+</head>
+<body>
+    <div class="overlay"></div>
+    
+    <header class="main-header">
+        <a href="kali-tools.html" class="header-link">
+            <h1>[ BASIC_LINUX_COMMANDS ]</h1>
+            <p>Kliknutím se vrátíš zpět.</p>
+        </a>
+    </header>
+
+    <main class="detail-container">
+        <section class="content-section">
+            <h2>Pohyb a Průzkum (Navigation & Recon)</h2>
+            <p>Základní pohyb v souborovém systému musí být efektivní. V BBP často získáš "omezený shell" a musíš rychle zjistit, kde jsi a co je kolem tebe.</p>
+            
+            <div class="grid">
+                <div class="status-box">
+                    <span class="code">ls (List)</span>
+                    <p>Vypíše obsah adresáře. <br><strong>Security Tip:</strong> Vždy používej <code>ls -la</code>. Přepínač <code>-a</code> odhalí skryté soubory jako <code>.env</code>, <code>.git</code> nebo <code>.bash_history</code>, které jsou zdrojem leaků.</p>
+                </div>
+                <div class="status-box">
+                    <span class="code">cd (Change Directory)</span>
+                    <p>Změna adresáře. <br><strong>Pro tip:</strong> <code>cd -</code> tě vrátí do předchozího adresáře, <code>cd ~</code> do domovského.</p>
+                </div>
+                <div class="status-box">
+                    <span class="code">pwd (Print Working Directory)</span>
+                    <p>Zobrazí absolutní cestu k aktuálnímu adresáři. Klíčové při psaní exploitů, které vyžadují přesné cesty.</p>
+                </div>
+            </div>
+        </section>
+
+        
+
+        <section class="content-section">
+            <h2>Manipulace se soubory (Weaponization)</h2>
+            <p>Vytváření skriptů a čištění stop po útoku.</p>
+            
+            <div class="terminal-window">
+                <div class="terminal-header">bash — file_operations</div>
+                <div class="terminal-body">
+                    <span class="prompt">$</span> touch exploit.sh <span class="output"># Vytvoří prázdný soubor</span><br>
+                    <span class="prompt">$</span> echo "whoami" > exploit.sh <span class="output"># Zapíše příkaz do souboru (přepíše obsah)</span><br>
+                    <span class="prompt">$</span> cat /etc/passwd <span class="output"># Vypíše obsah souboru (klasika pro LFI testování)</span><br>
+                    <span class="prompt">$</span> rm -rf /tmp/payload <span class="output"># Rekurzivně a násilně smaže stopy (používat opatrně!)</span>
+                </div>
+            </div>
+            
+            <div class="knowledge-box">
+                <h3>Pozor na 'rm':</h3>
+                <p>V Linuxu neexistuje koš. Jakmile použiješ <code>rm</code>, soubor je (pro běžné uživatele) pryč. V Bug Bounty je smazání důležitých produkčních dat (tzv. Destructive Testing) zakázáno, pokud k tomu nemáš výslovný souhlas!</p>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2>Analýza Dat a Textu (Data Sifting)</h2>
+            <p>Při screeningu tisíců subdomén nebo logů potřebuješ filtrovat. Tady začíná pravá magie.</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Příkaz</th>
+                        <th>Funkce</th>
+                        <th>Využití v BBP</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td>grep</td><td>Hledání textu pomocí vzorů.</td><td><code>grep -r "API_KEY" .</code> najde klíče v kódu.</td></tr>
+                    <tr><td>wc (Word Count)</td><td>Počítá řádky, slova a znaky.</td><td><code>wc -l subdomains.txt</code> – kolik cílů mám?</td></tr>
+                    <tr><td>head / tail</td><td>Zobrazí začátek nebo konec souboru.</td><td><code>tail -f access.log</code> – sledování logů v reálném čase.</td></tr>
+                    <tr><td>sort / uniq</td><td>Seřazení a odstranění duplicit.</td><td>Vyčištění seznamu nalezených subdomén.</td></tr>
+                </tbody>
+            </table>
+        </section>
+
+        
+
+        <section class="content-section">
+            <h2>Oprávnění (Privilege Escalation Foundations)</h2>
+            <p>Linux je postaven na právech. Jako hacker se vždy ptáš: "Můžu to spustit? Můžu to přepsat?"</p>
+            <div class="terminal-window">
+                <div class="terminal-header">bash — permissions_check</div>
+                <div class="terminal-body">
+                    <span class="prompt">$</span> chmod +x payload.py <span class="output"># Nastaví soubor jako spustitelný</span><br>
+                    <span class="prompt">$</span> chown root:root secret.txt <span class="output"># Změní vlastníka na roota (vyžaduje sudo)</span><br>
+                    <span class="prompt">$</span> sudo -l <span class="output"># Zjistí, jaké příkazy můžeš spouštět jako root bez hesla (klíč k PrivEsc)</span>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2>Síťové příkazy (Network Recon)</h2>
+            <p>Zjišťování, s kým server mluví a co na něm běží.</p>
+            <ul>
+                <li><strong>ip a:</strong> Zobrazení IP adres a síťových rozhraní.</li>
+                <li><strong>netstat -tunlp:</strong> Vypíše všechny otevřené porty a procesy, které je drží. (Must-have pro detekci backdoorů).</li>
+                <li><strong>curl / wget:</strong> Stahování souborů a interakce s API přímo z terminálu.</li>
+            </ul>
+        </section>
+
+        <section class="content-section">
+            <h2>The Power of Pipes (|)</h2>
+            <div class="knowledge-box" style="border-color: #00ff41;">
+                <p>V Linuxu je filozofie: "Dělej jednu věc a dělej ji dobře." Pomocí roury (pipe) propojíš výstup jednoho příkazu se vstupem druhého.</p>
+                <p><strong>Příklad:</strong> <code>cat subdomains.txt | sort | uniq | wc -l</code> <br> (Vezmi soubor -> seřaď ho -> odstraň duplicity -> spočítej unikátní řádky).</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <p>TERMINAL_LOG: LINUX_BASICS_LOADED // USER: ROOT_IN_TRAINING // UPTIME: 99.9%</p>
+    </footer>
+</body>
+</html>

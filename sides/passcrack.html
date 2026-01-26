@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Předpokládáme, že styly pro tuto sekci budou sdílet stejné cestové předpony -->
+    <link rel="stylesheet" href="../styles/style.css">
+    <link rel="stylesheet" href="../styles/sidestyle.css">
+    <title>Linux Mastery | Credential Attack Toolkit</title>
+</head>
+<body>
+    <div class="overlay"></div>
+    
+    <header class="main-header">
+        <a href="kali-tools.html" class="header-link">
+            <h1>[ CREDENTIAL_ATTACK_TOOLKIT ]</h1>
+            <p>Kliknutím se vrátíš zpět na seznam nástrojů.</p>
+        </a>
+    </header>
+
+    <main class="detail-container">
+        <section class="content-section">
+            <h2>Hydra: Offline i Online Útoky Hrubou Silou</h2>
+            <p><code>Hydra</code> je pravděpodobně nejznámější síťový krakerač hesel. Dokáže útočit na desítky protokolů (SSH, FTP, HTTP POST, SMB, RDP atd.) buď online (s omezením počtu pokusů) nebo při získání hashe, kde se stává bruteforce engine.</p>
+            
+            <div class="terminal-window">
+                <div class="terminal-header">bash — hydra_network_bruteforce</div>
+                <div class="terminal-body">
+                    <span class="prompt"># Útok na SSH službu na lokálním stroji, s použitím souborů user.txt a pass.txt:</span><br>
+                    <span class="prompt">$</span> hydra -L user.txt -P pass.txt ssh://192.168.1.100 -t 4 -vV<br>
+                    <span class="prompt"># Útok na HTTP POST formulář (např. login panel webové aplikace):</span><br>
+                    <span class="prompt">$</span> hydra -l admin -P pass.txt 192.168.1.50 http-post-form "/login.php:user=^USER^&pass=^PASS^:F=login failed"<br>
+                    <span class="prompt"># Použití speciálního module (např. MS-CHAPv2 pro Windows s použitím NTLM hashů):</span><br>
+                    <span class="prompt">$</span> hydra -L users.list -P hashes.list smb://target.corp -M 
+                </div>
+            </div>
+            <p><em>Volba správného protokolu (<code>ssh://</code>, <code>ftp://</code>, <code>http-post-form</code>) a pochopení syntaxe pro data (<code>^USER^</code>, <code>^PASS^</code>) je zde kritická.</em></p>
+        </section>
+
+        
+
+        <section class="content-section">
+            <h2>John The Ripper (JtR): Král Offline Hash Cracking</h2>
+            <p>Zatímco Hydra cílí na aktivní služby, <code>John The Ripper</code> je primárně navržen pro práci s lokálně získanými hashi (např. <code>/etc/shadow</code>, SAM soubory z Windows). Je extrémně efektivní díky optimalizovaným útokům (slovníkové útoky, masky, a pokročilé kombinace).</p>
+            <div class="grid">
+                <div class="status-box highlight-yellow">
+                    <span class="code">john --wordlist=rockyou.txt hash_file.txt</span>
+                    <p>Standardní slovníkový útok. JtR se automaticky pokusí použít optimalizované techniky na daný formát hashe (např. SHA512crypt, MD5-crypt).</p>
+                </div>
+                <div class="status-box highlight-red">
+                    <span class="code">john --restore</span>
+                    <p>Klíčové pro dlouhé běhy. Obnoví útok tam, kde skončil, pokud byl proces přerušen. Neplýtvej časem – používej automatické ukládání.</p>
+                </div>
+            </div>
+        </section>
+
+        <section class="content-section">
+            <h2>Formáty a Omezení: Extrakce Hashe</h2>
+            <p>Úspěch s JtR závisí na tom, jak správně hash získáš a jak ho JtR detekuje. JtR podporuje stovky formátů (tzv. "Modes").</p>
+            <ul>
+                <li><strong>Linux Hashe:</strong> Nejčastěji extrahované z <code>/etc/shadow</code> (vyžaduje root oprávnění pro čtení). Formát obvykle začíná <code>$6$</code> (SHA512) nebo <code>$5$</code> (SHA256).</li>
+                <li><strong>Windows Hashe (NTLM/LM):</strong> Získávají se z SAM souborů (nebo memory dumpů). JtR je dokáže dešifrovat po získání hashe.</li>
+                <li><strong>Specifické Formáty:</strong> Pokud potřebuješ specifikovat formát (např. u specifických databází), použij přepínač <code>--format=FORMAT_NAME</code>.</li>
+            </ul>
+        </section>
+
+        <section class="content-section">
+            <h2>Optimalizace a Zrychlení (GPU/CPU)</h2>
+            <p>Moderní útoky na hesla téměř vždy využívají akceleraci. JtR i jeho moderní deriváty (např. Hashcat) těží z výkonu GPU.</p>
+            <div class="terminal-window">
+                <div class="terminal-header">bash — performance_tuning</div>
+                <div class="terminal-body">
+                    <span class="prompt"># Kontrola JtR výkonu (kolik hesel za sekundu):</span><br>
+                    <span class="prompt">$</span> john --test<br>
+                    <span class="prompt"># (Pokud používáš GPU verzi JtR nebo Hashcat)</span><br>
+                    <span class="prompt">$</span> hashcat -m 1800 hashes.txt wordlist.txt -O <span class="output"># Příklad pro NTLM hashe (mode 1800)</span>
+                </div>
+            </div>
+            <p><em><strong>Tip:</strong> Vždy se snaž pochopit architekturu hashe. Útok na starý MD5 je milisekundová záležitost, na moderní bcrypt se spotřebuje výrazně více času i na výkonném hardwaru.</em></p>
+        </section>
+
+        <section class="content-section">
+            <h2>Kombinované Scénáře: Od Sítě k Hashi</h2>
+            <p>Nejefektivnější útočný řetězec často kombinuje oba nástroje:</p>
+            <ol>
+                <li><strong>Injekce/Dump:</strong> Pomocí SQL Injection nebo zneužití oprávnění získáš soubor s hashi (např. <code>/etc/shadow</code>).</li>
+                <li><strong>Offline Cracking:</strong> Vytáhneš hashe do samostatného souboru a spustíš JtR. Tímto způsobem se vyhneš blokování IP adres a rychlost je maximální.</li>
+                <li><strong>Online Validace:</strong> Jakmile JtR najde heslo, můžeš ho v Hydře ověřit proti reálné cílové službě (SSH/RDP).</li>
+            </ol>
+        </section>
+    </main>
+
+    <footer>
+        <p>TERMINAL_LOG: CREDENTIAL_ATTACKS_LOADED // USER: OFFLINE_GUEST // UPTIME: 99.9%</p>
+    </footer>
+</body>
+</html>
